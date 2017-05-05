@@ -11,8 +11,8 @@ import scipy.stats
 bmap = brewer2mpl.get_map('Set2', 'qualitative', 7)
 colors = bmap.mpl_colors
 
-dir = "/home/pierre/workspace/myTexplore/resultats_python/"
-
+dir1 = "/home/pierre/Dropbox/resultats/resultats_python/"
+dir2 = "/home/pierre/workspace/myTexplore/resultats_python/"
 
 def read(path):
     var = []
@@ -25,10 +25,10 @@ def read(path):
     return np.array(var)
 
 def load(dir):
-    path_list = glob.glob(dir+'/*/accumulated_rewards')
-    data = np.zeros((len(path_list), 41))
+    path_list = glob.glob(dir+'/*/reward_acc')
+    data = np.zeros((len(path_list), 33))
     for i,p in enumerate(path_list):
-        data[i,:] = read(p)[:41]
+        data[i,:] = read(p)[:33]
     return data
 
 def perc(data):
@@ -59,15 +59,15 @@ def stars(p):
    else:
        return "-"
 
-data_baseline = load(dir+"02-05-2017_21-37-43_2_v_0.000000_n_1.000000_tb_0.000000_eps_0.000000_pretrain_0_fR_100_nbR_2_nbB_1_nmodels_5_batch_1_steps_1001_size_5")
+data_baseline = load(dir2+"05-05-2017_13-35-09_2_v_0.000000_n_10.000000_tb_0.000000_eps_0.000000_pretrain_0_fR_100_nbR_2_nbB_1_nmodels_5_batch_1_steps_801_size_5")
 med_baseline, perc_25_baseline, perc_75_baseline = perc(data_baseline)
 avg_data_tb0 = avg(data_baseline)
 
-data_comp = load(dir+"02-05-2017_22-39-22_2_v_0.000000_n_1.000000_tb_1.000000_eps_0.000000_pretrain_0_fR_100_nbR_2_nbB_1_nmodels_5_batch_1_steps_1001_size_5")
+data_comp = load(dir2+"05-05-2017_14-29-46_2_v_0.000000_n_10.000000_tb_0.000000_eps_0.000000_pretrain_0_fR_100_nbR_2_nbB_1_nmodels_5_batch_1_steps_801_size_5")
 med_comp, perc_25_comp, perc_75_comp = perc(data_comp)
 avg_data_tb1 = avg(data_comp)
 
-x = np.linspace(0,1000,41)
+x = np.linspace(0,800,33)
 
 fig = plt.figure()
 fig.subplots_adjust(left=0.09, bottom=0.1, right=0.99, top=0.99, wspace=0.1)
@@ -95,8 +95,8 @@ ax1.plot(x,avg_data_tb1, linewidth=2, linestyle='--', color=colors[1])
 
 ax1.legend()
 
-ax1.set_xlim(0, 1000)
-ax1.set_ylim(0, 10000)
+# ax1.set_xlim(0, 1000)
+# ax1.set_ylim(0, 10000)
 
 ax1.spines['top'].set_visible(False)
 ax1.spines['right'].set_visible(False)
@@ -109,9 +109,10 @@ ax1.tick_params(axis='y', length=0)
 for spine in ax1.spines.values():
     spine.set_position(('outward', 5))
 
-ax1.set_xticks(np.arange(0, 1000, 200))
+# ax1.set_xticks(np.arange(0, 1000, 200))
+# ax1.set_yticks(np.arange(0, 9800, 2000))
 
-legend = ax1.legend(["Median, tb = 0", "Average, tb = 0", "Median, tb = 1", "Average, tb = 1"], loc=0);
+legend = ax1.legend(["Median, tb = 0", "Average, tb = 0", "Median, tb = 1", "Average, tb = 1"], loc=2);
 frame = legend.get_frame()
 frame.set_facecolor('1.0')
 frame.set_edgecolor('1.0')
@@ -119,8 +120,8 @@ frame.set_edgecolor('1.0')
 
 ax2 = fig.add_subplot(122)
 
-data_1000_tb0 = data_baseline[:,40]
-data_1000_tb1 = data_comp[:,40]
+data_1000_tb0 = data_baseline[:,32]
+data_1000_tb1 = data_comp[:,32]
 
 z, p = scipy.stats.mannwhitneyu(data_1000_tb0, data_1000_tb1)
 p_value = p * 2
@@ -129,7 +130,7 @@ s = stars(p)
 y_max = np.max(np.concatenate((data_1000_tb0, data_1000_tb1)))
 y_min = np.min(np.concatenate((data_1000_tb0, data_1000_tb1)))
 
-ax2.set_ylim(0, 10000)
+## ax2.set_ylim(0, 0.1)
 ax2.grid(axis='y', color="0.9", linestyle='-', linewidth=1)
 ax2.set_axisbelow(True)
 
@@ -172,11 +173,11 @@ for i in range(0, len(bp['boxes'])):
    for c in bp['caps']:
        c.set_linewidth(0)
 
-ax2.annotate("", xy=(1, 1.05*y_max), xycoords='data',
-           xytext=(2, 1.05*y_max), textcoords='data',
-           arrowprops=dict(arrowstyle="-", ec='#aaaaaa',
-                           connectionstyle="bar,fraction=0.1"))
-ax2.text(1.5, 1.05*y_max + abs(y_max - y_min)*0.1, stars(p_value),
+# ax2.annotate("", xy=(1, 1.05*y_max), xycoords='data',
+#            xytext=(2, 1.05*y_max), textcoords='data',
+#            arrowprops=dict(arrowstyle="-", ec='#aaaaaa',
+#                            connectionstyle="bar,fraction=0.1"))
+ax2.text(1.5, abs(y_max - y_min)*0.1, stars(p_value),
        horizontalalignment='center',
        verticalalignment='center',
         fontsize='xx-large')
@@ -206,4 +207,5 @@ ax2.text(1.5, 1.05*y_max + abs(y_max - y_min)*0.1, stars(p_value),
 #             s, = struct.unpack('f', data)
 #             avg.append(s)
 #
+fig.savefig('n5tb0_n5tb1.png')
 plt.show()
